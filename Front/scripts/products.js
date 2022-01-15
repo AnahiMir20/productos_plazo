@@ -154,16 +154,15 @@ const seeProduct = (SKU, name, price) => {
     $("#nombrePlazos").append(name)
     $("#precioPlazos").empty()
     $("#precioPlazos").append(`$${price}`)
-    $("#listaPlazos").append('<li class="list-group-item">Tipo de Pago: Normal o Puntual </li>')
+    $("#listaPlazos").append('<li class="list-group-item">Tipo de Pago: Abono Normal o Abono Puntual </li>')
     plazoTML.classList.add('list-group')
     plazos.forEach(plazo => {
         console.log(plazo)
 
 
         let plazox = `
-        <li class="list-group-item"> A ${plazo.weeks} Semanas $${plazo.normal_rate * price} o $${plazo.punctual_rate * price} </li>
+        <li class="list-group-item"> A ${plazo.weeks} Semanas $${((plazo.normal_rate * price)+(price/plazo.weeks)).toFixed(3)} o $${((plazo.punctual_rate * price)+(price/plazo.weeks)).toFixed(3)} </li>
    `;
-
 
 
         plazoTML.innerHTML += plazox;
@@ -210,6 +209,51 @@ async function crearProducto() {
         };
 
         fetch("http://localhost:3000/products/insert", requestOptions)
+            .then(response => response.text())
+            .then((result) => {
+                console.log(result)
+                location.reload();
+            })
+            .catch(error => console.log('error', error));
+    }
+
+}
+
+async function crearPlazo() {
+
+    crearSemana = document.getElementById('crearSemana').value;
+    crearNomal = document.getElementById('crearNormal').value;
+    crearPuntual = document.getElementById('crearPuntual').value;
+
+    if (!crearSemana) {
+        alert("se necesitan las semanas")
+    }
+    else if (!crearNomal) {
+        alert("se necesita una tasa normla")
+    }
+    else if (!crearPuntual) {
+        alert("se necesita una tasa puntual")
+    }
+
+    else {
+        console.log(crearSemana, crearNomal, crearPuntual)
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        var raw = JSON.stringify({
+            "weeks": crearSemana,
+            "normal": crearNomal,
+            "punctual": crearPuntual
+        });
+
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
+
+        fetch("http://localhost:3000/deadlines/insert", requestOptions)
             .then(response => response.text())
             .then((result) => {
                 console.log(result)

@@ -4,4 +4,10 @@ module.exports = async (app) => {
         res.send(await deadlinesController.listdeadlines());
 
     });
+
+    app.post('/deadlines/insert', async (req, res) => {
+        let deadline = req.body;
+        res.send(await deadlinesController.insertDeadline(deadline));
+    });
+    
 };
