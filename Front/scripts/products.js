@@ -1,17 +1,26 @@
 var productSKU
 var plazos
 
-async function getPlazos(){
+function validateText(valor) {
+    if (valor == null || valor.length == 0 || /^\s+$/.test(valor)) {
+        return false;
+    }
+    else {
+        return true
+    }
+}
+
+async function getPlazos() {
     var requestOptions = {
         method: 'GET',
         redirect: 'follow'
-      };
-      
-      fetch("http://localhost:3000/deadlines", requestOptions)
+    };
+
+    fetch("http://localhost:3000/deadlines", requestOptions)
         .then(response => response.json())
         .then((result) => {
             console.log(result[0])
-            plazos=result[0];
+            plazos = result[0];
         })
         .catch(error => console.log('error', error));
 }
@@ -118,7 +127,7 @@ async function actualizarProductoPut() {
     }
     else {
         alert("Favor de ingresar un numero valido")
-        
+
     }
 }
 
@@ -137,25 +146,78 @@ async function deleteProduct(SKU) {
         .catch(error => console.log('error', error));
 }
 
-const seeProduct = (SKU, name, description, price) => {
-    console.log(SKU, name, description, price)
+const seeProduct = (SKU, name, price) => {
+    console.log(SKU, name, price)
     let plazoTML = document.createElement('ul');
-
+    $("#listaPlazos").empty()
+    $("#nombrePlazos").empty()
+    $("#nombrePlazos").append(name)
+    $("#precioPlazos").empty()
+    $("#precioPlazos").append(`$${price}`)
+    $("#listaPlazos").append('<li class="list-group-item">Tipo de Pago: Normal o Puntual </li>')
     plazoTML.classList.add('list-group')
     plazos.forEach(plazo => {
         console.log(plazo)
 
 
         let plazox = `
-        <li class="list-group-item">Semanas: ${plazo.weeks}</li>
+        <li class="list-group-item"> A ${plazo.weeks} Semanas $${plazo.normal_rate * price} o $${plazo.punctual_rate * price} </li>
    `;
 
-        
+
 
         plazoTML.innerHTML += plazox;
         document.getElementById('listaPlazos').appendChild(plazoTML);
     });
     // productSKU = producto;
+}
+
+async function crearProducto() {
+
+    crearSKU = document.getElementById('crearSKU').value;
+    crearNombre = document.getElementById('crearNombre').value;
+    crearDescripcion = document.getElementById('crearDescripcion').value;
+    crearPrecio = document.getElementById('crearPrecio').value;
+    if (!crearSKU) {
+        alert("se necesita el SKU")
+    }
+    else if (!validateText(crearNombre)) {
+        alert("se necesita un nombre")
+    }
+    else if (!validateText(crearDescripcion)) {
+        alert("se necesita una descripcion")
+    }
+    else if (!(crearPrecio)) {
+        alert("se necesita un precio")
+    }
+    else {
+        console.log(crearSKU, crearNombre, crearDescripcion, crearPrecio)
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        var raw = JSON.stringify({
+            "SKU": crearSKU,
+            "name": crearNombre,
+            "description": crearDescripcion,
+            "price": crearPrecio
+        });
+
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
+
+        fetch("http://localhost:3000/products/insert", requestOptions)
+            .then(response => response.text())
+            .then((result) => {
+                console.log(result)
+                location.reload();
+            })
+            .catch(error => console.log('error', error));
+    }
+
 }
 
 getProducts()
