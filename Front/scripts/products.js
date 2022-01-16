@@ -161,7 +161,7 @@ const seeProduct = (SKU, name, price) => {
 
 
         let plazox = `
-        <li class="list-group-item"> A ${plazo.weeks} Semanas $${((plazo.normal_rate * price)+(price/plazo.weeks)).toFixed(3)} o $${((plazo.punctual_rate * price)+(price/plazo.weeks)).toFixed(3)} </li>
+        <li class="list-group-item"> A ${plazo.weeks} Semanas $${((plazo.normal_rate * price) + (price / plazo.weeks)).toFixed(3)} o $${((plazo.punctual_rate * price) + (price / plazo.weeks)).toFixed(3)} </li>
    `;
 
 
@@ -264,5 +264,91 @@ async function crearPlazo() {
 
 }
 
+async function buscar() {
+    buscarTexto = document.getElementById('buscarTexto').value;
+    console.log(buscarTexto, typeof (buscarTexto))
+    buscarEntero = parseInt(buscarTexto);
+    console.log(buscarTexto, isNaN(buscarEntero))
+    if (!validateText) {
+        alert("Ingrese un valor")
+    }
+    else {
+        var myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+
+        var raw = JSON.stringify({
+            "find": isNaN(buscarEntero) ? buscarTexto : buscarEntero
+        });
+
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
+
+        fetch("http://localhost:3000/products/find", requestOptions)
+            .then(response => response.json())
+            .then(result => showProduct(result[0][0]))
+            .catch((error) => {
+                console.log('error', error)
+                location.reload();
+        });
+            
+    }
+
+}
+
+function showProduct(producto) {
+    console.log(producto)
+    $("#productosInternos").empty()
+    let productox = `
+    <div class="block product no-border z-depth-2-top z-depth-2--hover">
+    <div class="block-image">
+        <a href="#">
+            <img src="img/play.jpg" class="img-center">
+        </a>
+        <span class="product-ribbon product-ribbon-right product-ribbon--style-1 bg-blue text-uppercase">New</span>
+    </div>
+    <div class="block-body text-center">
+        <h3 class="heading heading-5 strong-600 text-capitalize">
+            <a href="#">
+               ${producto.name}
+            </a>
+        </h3>
+        <p class="product-description">
+            ${producto.description} $${producto.price} SKU:${producto.SKU}
+        </p>
+        <div class="product-buttons mt-4">
+            <div class="row align-items-center"> 
+            <div class="col-4">
+            <button type="button"  onclick=editProduct(${producto.SKU}) class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Editar
+        </button>
+                </div>
+                <div class="col-4">
+                    <button type="button" onclick=deleteProduct(${producto.SKU}) class="btn btn-block btn-danger btn-circle btn-icon-left">
+                        Eliminar
+                    </button>
+                </div>
+                <div class="col-4">
+                <button type="button"  onclick=seeProduct(${producto.SKU},"${producto.name}",${producto.price}) class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal2">
+                Ver plazos
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>`;
+
+    let productoHTML = document.createElement('div');
+    // productoHTML.classList.add('contenedor-producto', 'col-xl-3', 'col-md-4', 'col-sm-6', 'Secondary')
+    productoHTML.classList.add('col-md-6')
+
+    productoHTML.innerHTML += productox;
+    document.getElementById('productosInternos').appendChild(productoHTML);
+}
+
 getProducts()
 getPlazos()
+

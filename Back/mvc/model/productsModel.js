@@ -27,7 +27,13 @@ module.exports = class productsModel {
         return result;
     }
 
-
+    async find (product){
+        var sku =typeof(product.find)=== "string"? 0 :product.find;
+        var name = typeof(product.find)==="string"? product.find: "";
+        console.log("SELECT * FROM products WHERE SKU = "+ sku +" OR [name] = '"+name +"'" )
+        let result = await sequelize.query("SELECT * FROM products WHERE SKU = "+ sku +" OR [name] = '"+name +"'" );
+        return result;
+    }
 }
 
 

@@ -22,3 +22,9 @@ module.exports.updateProduct = async (product) => {
     let result = await response.update(product)
     return result;
 }
+
+module.exports.findProduct = async (product) => {
+    let response = new productsModel();
+    let result = await response.find(product)
+    return result;
+}
